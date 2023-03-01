@@ -3,7 +3,7 @@ import getopt, sys
 
 if __name__ == '__main__':
 
-    iterations = 100
+    iterations = 1000
     k = 3
     m = 0.2
     size = 10

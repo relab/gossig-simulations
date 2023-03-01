@@ -1,5 +1,6 @@
 from signature import Signature
 import random
+import copy
 
 class Process:
 
@@ -18,7 +19,8 @@ class Process:
                 break
         receivers = []
         for sample in samples:
-            receivers.append((sample, self.signature))
+            x = copy.deepcopy(self.signature)
+            receivers.append((sample, x))
         return receivers
 
     def hasQuorom(self, size):

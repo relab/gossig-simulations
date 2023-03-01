@@ -1,5 +1,6 @@
 from process import Process
 from itertools import chain, combinations
+import copy
 
 class Byzantine(Process):
 
@@ -7,13 +8,16 @@ class Byzantine(Process):
         Process.__init__(self, id)
         self.victims = victims
         self.individualShares = []
+        #self.extractedShares = []
+        #self.extractedShares.append(self.signature)
         self.extracted = {}
         for victim in victims:
             self.extracted[victim] = False
 
     def receive(self, sig):
         Process.receive(self,sig)
-        self.individualShares.append(sig)
+        x = copy.deepcopy(sig)
+        self.individualShares.append(x)
         self.canExtract(sig)
 
     def canExtract(self, sig):
