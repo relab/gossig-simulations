@@ -25,5 +25,6 @@ class Process:
 
     def hasQuorom(self, size):
         if self.signature.isQuorom(size):
+            print(self.signature.signatures)
             return True
         return False

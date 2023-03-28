@@ -8,8 +8,10 @@ class Byzantine(Process):
         Process.__init__(self, id)
         self.victims = victims
         self.individualShares = []
-        #self.extractedShares = []
-        #self.extractedShares.append(self.signature)
+        x = copy.deepcopy(self.signature)
+        self.individualShares.append(x)
+        self.extractedShares = {}
+        self.extractedShares[x.toString()] = x
         self.extracted = {}
         for victim in victims:
             self.extracted[victim] = False
@@ -18,18 +20,43 @@ class Byzantine(Process):
         Process.receive(self,sig)
         x = copy.deepcopy(sig)
         self.individualShares.append(x)
-        self.canExtract(sig)
+        self.extract(sig)
+
+    def extract(self, sig):
+        if self.allVictimsExtracted():
+            return True
+        queue = [sig]
+        while(len(queue) > 0):
+            sig = queue.pop()
+            exs = {}
+            for share in self.extractedShares:
+                shareSig = self.extractedShares[share]
+                if shareSig.subset(sig) and shareSig.toString() != sig.toString():
+                    extracted = sig.subtract(shareSig)
+                    if extracted.toString() not in self.extractedShares:
+                        exs[extracted.toString()] = extracted
+            for ex in exs:
+                self.extractedShares[ex] = exs[ex]
+                queue.append(exs[ex])
+        for victim in self.victims:
+            if str(victim) in self.extractedShares:
+                self.extracted[victim] = True
+                return True
 
     def canExtract(self, sig):
+        print(sig.toString())
         for victim in self.victims:
             if self.extracted[victim]:
                 break
             if sig.include(victim):
-                tmpSig = [x for i, x in enumerate(sig.signatures) if x != victim]
+                tmpSig = copy.deepcopy(sig.signatures)
+                #tmpSig = [x for i, x in enumerate(sig.signatures) if x != victim]
+                tmpSig.remove(victim)
                 subsets = list(self.powerset(tmpSig))
                 for subset in subsets:
                     if self.extracted[victim]:
                         break
+                    print(subset)
                     for share in self.individualShares:
                         if share.len() == len(subset):
                             flag = True
@@ -40,10 +67,12 @@ class Byzantine(Process):
                             if flag:
                                 self.extracted[victim] = True
                                 print ("YAAAAAAAY")
+                                for s in self.individualShares:
+                                    print(s.signatures)
+                                print("%%%%%")
                                 break
 
     def allVictimsExtracted(self):
-        print (self.victims)
         for victim in self.victims:
             if not self.extracted[victim]:
                 return False

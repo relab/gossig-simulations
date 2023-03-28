@@ -3,10 +3,10 @@ import getopt, sys
 
 if __name__ == '__main__':
 
-    iterations = 1000
+    iterations = 100
     k = 3
     m = 0.2
-    size = 10
+    size = 5
 
     argumentList = sys.argv[1:]
     options = "i:s:m:k:"
@@ -33,13 +33,18 @@ if __name__ == '__main__':
         # output error, and return with an error code
         print(str(err))
 
-    count = 0
-    for i in range(iterations):
-        committee = Committee(size, m, k)
-        canExtract = committee.start()
-        if canExtract:
-            count += 1
-        print(canExtract)
+    counts = []
+    for k in range(3, 4):
+        count = 0
+        for i in range(iterations):
+            committee = Committee(size, m, k)
+            canExtract = committee.start()
+            if canExtract:
+                count += 1
+            print(canExtract)
 
-    print(count)
+        print(count)
+        counts.append(count)
+
+    print(counts)
 

@@ -20,6 +20,13 @@ class Committee:
             self.validators.append(Byzantine(j,[0]))
             j+=1
 
+    def allVictimsExtracted(self):
+        for v in self.validators:
+            if isinstance(v, Byzantine):
+                if v.allVictimsExtracted():
+                    return True
+        return False
+
     def start(self):
         samples = random.sample(self.validators, 1)
         leader = samples[0]
@@ -32,17 +39,20 @@ class Committee:
             queue.append(tuple)
 
         while(True):
+            if self.allVictimsExtracted():
+                return True
             if leader.hasQuorom(self.size):
-                for v in self.validators:
-                    if isinstance(v, Byzantine):
-                        if v.allVictimsExtracted():
-                            return True
-                return False
+                while len(queue)>0:
+                    (receiver , sig) = queue.pop(0)
+                    receiver.receive(sig)
+                return self.allVictimsExtracted()
+
             (receiver , sig) = queue.pop(0)
-            print(sig.signatures)
+            #print(sig.signatures)
             receiver.receive(sig)
             messages = receiver.send(self.k, self.validators)
             for tuple in messages:
                 queue.append(tuple)
+            print(leader.signature.signatures)
 
 

@@ -1,26 +1,50 @@
 class Signature:
 
     def __init__(self):
-        self.signatures = []
+        #self.signatures = []
         self.processesNumber = 0
+        self.signatures = {}
 
     def __init__(self, initialId):
-        self.signatures = []
-        self.signatures.append(initialId)
+        #self.signatures = []
+        #self.signatures.append(initialId)
         self.processesNumber = 0
+        self.signatures = {}
+        self.signatures[initialId] = 1
 
     def include(self, signature):
         if signature in self.signatures:
             return True
         return False
 
+    def subset(self, signature):
+        for sig in self.signatures:
+            if not signature.include(sig):
+                return False
+            if signature.signatures[sig] < self.signatures[sig]:
+                return False
+        return True
+
+    def subtract(self, signature):
+        subtracted = {}
+        for sig in self.signatures:
+            if signature.include(sig):
+                count = self.signatures[sig] - signature.signatures[sig]
+                if count > 0:
+                    subtracted[sig] = count
+            else:
+                subtracted[sig] = self.signatures[sig]
+        sub = Signature(-2)
+        sub.signatures = subtracted
+        return sub
+
     def append(self, sigs):
-        kk = 0
         for sig in sigs.signatures:
-            kk += 1
             if sig not in self.signatures:
                 self.processesNumber += 1
-            self.signatures.append(sig)
+                self.signatures[sig] = 1
+            else:
+                self.signatures[sig] += 1
 
     def isQuorom(self, committeeSize):
         if self.processesNumber >= (2/3)*committeeSize:
@@ -29,3 +53,12 @@ class Signature:
 
     def len(self):
         return len(self.signatures)
+
+    def toString(self):
+        list = []
+        res = ""
+        for sig in sorted(self.signatures):
+            for i in range(self.signatures[sig]):
+                list.append(str(sig))
+        res = ''.join(list)
+        return res
