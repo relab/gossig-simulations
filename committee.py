@@ -42,7 +42,10 @@ class Committee:
             if self.allVictimsExtracted():
                 return True
             if leader.hasQuorom(self.size):
+                print(len(queue))
                 while len(queue)>0:
+                    if self.allVictimsExtracted():
+                        return True
                     (receiver , sig) = queue.pop(0)
                     receiver.receive(sig)
                 return self.allVictimsExtracted()
@@ -53,6 +56,6 @@ class Committee:
             messages = receiver.send(self.k, self.validators)
             for tuple in messages:
                 queue.append(tuple)
-            print(leader.signature.signatures)
+            #print(leader.signature.signatures)
 
 

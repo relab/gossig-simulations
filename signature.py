@@ -1,13 +1,10 @@
 class Signature:
 
     def __init__(self):
-        #self.signatures = []
         self.processesNumber = 0
         self.signatures = {}
 
     def __init__(self, initialId):
-        #self.signatures = []
-        #self.signatures.append(initialId)
         self.processesNumber = 0
         self.signatures = {}
         self.signatures[initialId] = 1

@@ -23,10 +23,14 @@ class Byzantine(Process):
         self.extract(sig)
 
     def extract(self, sig):
-        if self.allVictimsExtracted():
-            return True
+        print(len(self.extractedShares))
         queue = [sig]
         while(len(queue) > 0):
+            for victim in self.victims:
+                if str(victim) in self.extractedShares:
+                    self.extracted[victim] = True
+            if self.allVictimsExtracted():
+                return True
             sig = queue.pop()
             exs = {}
             for share in self.extractedShares:
@@ -35,42 +39,13 @@ class Byzantine(Process):
                     extracted = sig.subtract(shareSig)
                     if extracted.toString() not in self.extractedShares:
                         exs[extracted.toString()] = extracted
+                        #print(extracted.toString())
+                if len(self.extractedShares) > 2000:
+                    return self.allVictimsExtracted()
             for ex in exs:
                 self.extractedShares[ex] = exs[ex]
                 queue.append(exs[ex])
-        for victim in self.victims:
-            if str(victim) in self.extractedShares:
-                self.extracted[victim] = True
-                return True
-
-    def canExtract(self, sig):
-        print(sig.toString())
-        for victim in self.victims:
-            if self.extracted[victim]:
-                break
-            if sig.include(victim):
-                tmpSig = copy.deepcopy(sig.signatures)
-                #tmpSig = [x for i, x in enumerate(sig.signatures) if x != victim]
-                tmpSig.remove(victim)
-                subsets = list(self.powerset(tmpSig))
-                for subset in subsets:
-                    if self.extracted[victim]:
-                        break
-                    print(subset)
-                    for share in self.individualShares:
-                        if share.len() == len(subset):
-                            flag = True
-                            for s in subset:
-                                if not share.include(s):
-                                    flag = False
-                                    break
-                            if flag:
-                                self.extracted[victim] = True
-                                print ("YAAAAAAAY")
-                                for s in self.individualShares:
-                                    print(s.signatures)
-                                print("%%%%%")
-                                break
+        return self.allVictimsExtracted()
 
     def allVictimsExtracted(self):
         for victim in self.victims:

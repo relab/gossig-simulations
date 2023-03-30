@@ -5,8 +5,8 @@ if __name__ == '__main__':
 
     iterations = 100
     k = 3
-    m = 0.2
-    size = 5
+    m = 0.1
+    size = 10
 
     argumentList = sys.argv[1:]
     options = "i:s:m:k:"
@@ -34,9 +34,10 @@ if __name__ == '__main__':
         print(str(err))
 
     counts = []
-    for k in range(3, 4):
+    for k in range(3, 9):
         count = 0
         for i in range(iterations):
+            print(str(k) +"-" + str(i))
             committee = Committee(size, m, k)
             canExtract = committee.start()
             if canExtract:
