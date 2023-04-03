@@ -51,6 +51,12 @@ class Signature:
     def len(self):
         return len(self.signatures)
 
+    def size(self):
+        size = 0
+        for sig in self.signatures:
+            size += self.signatures[sig]
+        return size
+
     def toString(self):
         list = []
         res = ""

@@ -6,7 +6,7 @@ if __name__ == '__main__':
     iterations = 100
     k = 3
     m = 0.1
-    size = 10
+    size = 100
 
     argumentList = sys.argv[1:]
     options = "i:s:m:k:"
@@ -34,7 +34,7 @@ if __name__ == '__main__':
         print(str(err))
 
     counts = []
-    for k in range(3, 9):
+    for k in range(1, 10):
         count = 0
         for i in range(iterations):
             print(str(k) +"-" + str(i))

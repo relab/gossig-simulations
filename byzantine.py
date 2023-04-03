@@ -23,7 +23,10 @@ class Byzantine(Process):
         self.extract(sig)
 
     def extract(self, sig):
-        print(len(self.extractedShares))
+        print(sig.size())
+        maxSize = 10
+        if sig.size() > maxSize:
+            return self.allVictimsExtracted()
         queue = [sig]
         while(len(queue) > 0):
             for victim in self.victims:
@@ -35,13 +38,18 @@ class Byzantine(Process):
             exs = {}
             for share in self.extractedShares:
                 shareSig = self.extractedShares[share]
+                extracted = None
                 if shareSig.subset(sig) and shareSig.toString() != sig.toString():
                     extracted = sig.subtract(shareSig)
+                elif sig.subset(shareSig) and shareSig.toString() != sig.toString():
+                    extracted = shareSig.subtract(sig)
+                if extracted is not None:
                     if extracted.toString() not in self.extractedShares:
-                        exs[extracted.toString()] = extracted
+                        if extracted.size() < maxSize:
+                            exs[extracted.toString()] = extracted
                         #print(extracted.toString())
-                if len(self.extractedShares) > 2000:
-                    return self.allVictimsExtracted()
+                #if len(self.extractedShares) > 15000:
+                    #return self.allVictimsExtracted()
             for ex in exs:
                 self.extractedShares[ex] = exs[ex]
                 queue.append(exs[ex])

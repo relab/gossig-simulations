@@ -27,6 +27,13 @@ class Committee:
                     return True
         return False
 
+    def exchangeShares(self, sender):
+        for v in self.validators:
+            if isinstance(v, Byzantine):
+                for share in sender.extractedShares:
+                    if share not in v.extractedShares:
+                        v.extractedShares[share] = sender.extractedShares[share]
+
     def start(self):
         samples = random.sample(self.validators, 1)
         leader = samples[0]
@@ -53,6 +60,8 @@ class Committee:
             (receiver , sig) = queue.pop(0)
             #print(sig.signatures)
             receiver.receive(sig)
+            if isinstance(receiver, Byzantine):
+                self.exchangeShares(receiver)
             messages = receiver.send(self.k, self.validators)
             for tuple in messages:
                 queue.append(tuple)
