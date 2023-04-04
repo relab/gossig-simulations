@@ -20,14 +20,16 @@ class Byzantine(Process):
         Process.receive(self,sig)
         x = copy.deepcopy(sig)
         self.individualShares.append(x)
-        self.extract(sig)
+        self.extract(copy.deepcopy(sig))
+        self.signature.append(sig)
 
-    def extract(self, sig):
-        print(sig.size())
-        maxSize = 10
-        if sig.size() > maxSize:
+    def extract(self, sigg):
+        print(sigg.size())
+        maxSize = 12
+        if sigg.size() > maxSize:
             return self.allVictimsExtracted()
-        queue = [sig]
+        self.extractedShares[sigg.toString()] = sigg
+        queue = [sigg]
         while(len(queue) > 0):
             for victim in self.victims:
                 if str(victim) in self.extractedShares:
