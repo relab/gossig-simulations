@@ -38,9 +38,14 @@ class Committee:
         samples = random.sample(self.validators, 1)
         leader = samples[0]
 
+        if not isinstance(leader, Byzantine):
+            return False
+
         queue = []
 
-        messages = leader.send(self.k, self.validators)
+        messages = leader.send(self.k-len(leader.victims), self.validators)
+        for victim in leader.victims:
+            messages.append(leader.sendTo(self.validators[victim]))
 
         for tuple in messages:
             queue.append(tuple)
@@ -55,6 +60,8 @@ class Committee:
                         return True
                     (receiver , sig) = queue.pop(0)
                     receiver.receive(sig)
+                    if isinstance(receiver, Byzantine):
+                        self.exchangeShares(receiver)
                 return self.allVictimsExtracted()
 
             (receiver , sig) = queue.pop(0)

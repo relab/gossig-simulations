@@ -23,6 +23,10 @@ class Process:
             receivers.append((sample, x))
         return receivers
 
+    def sendTo(self, receiver):
+        x = copy.deepcopy(self.signature)
+        return (receiver, x)
+
     def hasQuorom(self, size):
         if self.signature.isQuorom(size):
             print(self.signature.signatures)
