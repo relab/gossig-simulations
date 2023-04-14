@@ -3,10 +3,15 @@ import getopt, sys
 
 if __name__ == '__main__':
 
-    iterations = 100
+    iterations = 1
+    rounds = 100
     k = 3
-    m = 0.3
+    m = 0
+    fr = 0.3
+    frmax = 5
     size = 100
+    greedyMode = True
+    simType = "Freeriding"
 
     argumentList = sys.argv[1:]
     options = "i:s:m:k:"
@@ -34,18 +39,24 @@ if __name__ == '__main__':
         print(str(err))
 
     counts = []
-    for k in range(2, 6):
-        count = 0
-        for i in range(iterations):
-            print(str(k) +"-" + str(i))
-            committee = Committee(size, m, k)
-            canExtract = committee.start()
-            if canExtract:
-                count += 1
-            print(canExtract)
+    for k in range(2, 4):
+        sumItr = 0
+        for itr in range(iterations):
+            count = 0
+            for i in range(rounds):
+                print(str(k) +"-" + str(itr) +"-"+ str(i))
+                committee = Committee(size, m, fr, frmax, k, greedyMode, simType)
+                canExtract = committee.start()
+                if simType == "Byzantine":
+                    if canExtract:
+                        count += 1
+                elif simType == "Freeriding":
+                    count += canExtract
+                print(canExtract)
 
-        print(count)
-        counts.append(count)
+            print(count)
+            sumItr += count
+        counts.append(sumItr / iterations)
 
     print(counts)
 
