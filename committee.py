@@ -5,7 +5,7 @@ import random
 
 class Committee:
 
-    def __init__(self, size, m, fr, frmax, k, greedyMode, simType):
+    def __init__(self, size, m, fr, frmax, k, greedyMode, simType, colateral):
         self.m = m
         self.fr = fr
         self.byzantineNumber = (int)(m* size)
@@ -25,13 +25,13 @@ class Committee:
             self.validators.append(FreeRider(j, frmax))
             j+=1
         for i in range(self.byzantineNumber):
-            self.validators.append(Byzantine(j, [0]))
+            self.validators.append(Byzantine(j, [0], colateral))
             j+=1
 
     def allVictimsExtracted(self):
         for v in self.validators:
             if isinstance(v, Byzantine):
-                if v.allVictimsExtracted():
+                if v.allVictimsExtractedwithColateral():
                     return True
         return False
 
@@ -80,7 +80,7 @@ class Committee:
             if self.allVictimsExtracted():
                 return True
             if leader.hasQuorom(self.size):
-                print(len(queue))
+                #print(len(queue))
                 while len(queue)>0:
                     if self.allVictimsExtracted():
                         return True

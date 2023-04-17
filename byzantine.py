@@ -1,12 +1,14 @@
 from process import Process
 from itertools import chain, combinations
 import copy
+from signature import size as sigsize
 
 class Byzantine(Process):
 
-    def __init__(self, id, victims):
+    def __init__(self, id, victims, colateral):
         Process.__init__(self, id)
         self.victims = victims
+        self.colateral = colateral
         self.individualShares = []
         x = copy.deepcopy(self.signature)
         self.individualShares.append(x)
@@ -24,20 +26,21 @@ class Byzantine(Process):
         self.signature.append(sig)
 
     def extract(self, sigg):
-        print(sigg.size())
+        #print(sigg.size())
         maxSize = 12
         if sigg.size() > maxSize:
-            return self.allVictimsExtracted()
+            return self.allVictimsExtractedwithColateral()
         self.extractedShares[sigg.toString()] = sigg
         queue = [sigg]
         while(len(queue) > 0):
             for victim in self.victims:
                 if str(victim) in self.extractedShares:
                     self.extracted[victim] = True
-            if self.allVictimsExtracted():
+            if self.allVictimsExtractedwithColateral():
                 return True
             sig = queue.pop()
             exs = {}
+            
             for share in self.extractedShares:
                 shareSig = self.extractedShares[share]
                 extracted = None
@@ -51,15 +54,32 @@ class Byzantine(Process):
                             exs[extracted.toString()] = extracted
                         #print(extracted.toString())
                 #if len(self.extractedShares) > 15000:
-                    #return self.allVictimsExtracted()
+                    #return self.allVictimsExtractedwithColateral()
             for ex in exs:
                 self.extractedShares[ex] = exs[ex]
                 queue.append(exs[ex])
-        return self.allVictimsExtracted()
+        return self.allVictimsExtractedwithColateral()
 
     def allVictimsExtracted(self):
         for victim in self.victims:
             if not self.extracted[victim]:
+                return False
+        return True
+    
+    def allVictimsExtractedwithColateral(self):
+        for victim in self.victims:
+            if self.extracted[victim]:
+                continue
+            extracted = False
+            if self.colateral == 0:
+                return False
+            for sig in self.extractedShares.values():
+                if sig.size() > self.colateral+1:
+                    continue
+                if sig.include(victim):
+                    extracted = True
+                    break
+            if not extracted:
                 return False
         return True
 
