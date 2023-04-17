@@ -1,17 +1,19 @@
 from committee import Committee
 import getopt, sys
+from time import gmtime, strftime
+
 
 if __name__ == '__main__':
 
     iterations = 1
     colateral = 0
-    rounds = 100
+    rounds = 10
     k = 3
     m = 0
     fr = 0.3
     frmax = 5
     size = 100
-    greedyMode = True
+    greedyMode = False
     simType = "Byzantine"
 
     argumentList = sys.argv[1:]
@@ -49,18 +51,21 @@ if __name__ == '__main__':
     for k in range(2, 3):
         sumItr = 0
         for itr in range(iterations):
+            print (strftime("%H:%M:%S", gmtime()))
             print("Iteration {} with k {}".format(itr,k))
             count = 0
             for i in range(rounds):
-                #print(str(k) +"-" + str(itr) +"-"+ str(i), end=": ")
+                print (strftime("%H:%M:%S", gmtime()), end="; ")
+                print(str(k) +"-" + str(itr) +"-"+ str(i), end=": ")
                 committee = Committee(size, m, fr, frmax, k, greedyMode, simType, colateral)
                 canExtract = committee.start()
                 if simType == "Byzantine":
                     if canExtract:
                         count += 1
+                    committee.printextracted()
                 elif simType == "Freeriding":
                     count += canExtract
-                #print("Can extract {}".format(canExtract), end="; ")
+                print("Can extract {}".format(canExtract))
 
             print()
             print("Count: {}".format(count))

@@ -35,6 +35,12 @@ class Committee:
                     return True
         return False
 
+    def printextracted(self):
+        for v in self.validators:
+            if isinstance(v, Byzantine):
+                print("extracted shares: ", v.extractedShares.keys())
+                break
+
     def exchangeShares(self, sender):
         for v in self.validators:
             if isinstance(v, Byzantine):
@@ -57,6 +63,7 @@ class Committee:
             return self.startFreeriding()
 
     def startByzantine(self):
+        print("starting byzantine experiment")
         samples = random.sample(self.validators, 1)
         leader = samples[0]
 
@@ -78,8 +85,10 @@ class Committee:
 
         while(True):
             if self.allVictimsExtracted():
+                print("victim extracted")
                 return True
             if leader.hasQuorom(self.size):
+                print("quorum collected")
                 #print(len(queue))
                 while len(queue)>0:
                     if self.allVictimsExtracted():
@@ -98,7 +107,8 @@ class Committee:
             messages = receiver.send(self.k, self.validators)
             for tuple in messages:
                 queue.append(tuple)
-            #print(leader.signature.signatures)
+            self.printextracted()
+            print("leader signatures: ",leader.signature.signatures)
 
     def startFreeriding(self):
         samples = random.sample(self.validators, 1)
