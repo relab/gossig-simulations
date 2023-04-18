@@ -7,10 +7,10 @@ if __name__ == '__main__':
 
     iterations = 1
     colateral = 0
-    rounds = 10
+    rounds = 100
     k = 3
     m = 0
-    fr = 0.3
+    fr = 0
     frmax = 5
     size = 100
     greedyMode = False
@@ -48,24 +48,24 @@ if __name__ == '__main__':
 
     print("iterations: {}".format(iterations))
     counts = []
-    for k in range(2, 3):
+    for k in range(2, 4):
         sumItr = 0
         for itr in range(iterations):
             print (strftime("%H:%M:%S", gmtime()))
             print("Iteration {} with k {}".format(itr,k))
             count = 0
             for i in range(rounds):
-                print (strftime("%H:%M:%S", gmtime()), end="; ")
-                print(str(k) +"-" + str(itr) +"-"+ str(i), end=": ")
+                #print (strftime("%H:%M:%S", gmtime()), end="; ")
+                #print(str(k) +"-" + str(itr) +"-"+ str(i), end=": ")
                 committee = Committee(size, m, fr, frmax, k, greedyMode, simType, colateral)
                 canExtract = committee.start()
                 if simType == "Byzantine":
                     if canExtract:
                         count += 1
-                    committee.printextracted()
+                        #committee.printextracted()
                 elif simType == "Freeriding":
                     count += canExtract
-                print("Can extract {}".format(canExtract))
+                #print("Can extract {}".format(canExtract))
 
             print()
             print("Count: {}".format(count))

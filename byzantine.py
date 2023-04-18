@@ -3,8 +3,6 @@ from itertools import chain, combinations
 import copy
 from signature import size as sigsize
 
-
-
 class Byzantine(Process):
 
     def __init__(self, id, victims, colateral):
@@ -33,6 +31,15 @@ class Byzantine(Process):
         #if sigg.size() > maxSize:
         #    return self.allVictimsExtractedwithColateral()
         #self.extractedShares[sigg.toString()] = sigg
+        
+        #substract extracted singleton shares
+        for share in self.extractedShares:
+            shareSig = self.extractedShares[share]
+            if shareSig.processesNumber > 1 or shareSig.size() > 1:
+                continue
+            while (shareSig.subset(sigg) and shareSig.toString() != sigg.toString()):
+                sigg = sigg.subtract(shareSig)
+        
         queue = [sigg]
         while(len(queue) > 0):
             for victim in self.victims:
