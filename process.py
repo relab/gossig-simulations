@@ -9,7 +9,8 @@ class Process:
         self.signature = Signature(id)
 
     def receive(self, sig):
-        self.signature.append(sig)
+        if not sig.subset(self.signature):
+            self.signature.append(sig)
 
     def send(self, k, committee):
         samples = []

@@ -40,8 +40,19 @@ class Byzantine(Process):
             while (shareSig.subset(sigg) and shareSig.toString() != sigg.toString()):
                 sigg = sigg.subtract(shareSig)
         
+        #substract any subset if size is above maxSize
+        if sigg.size() > maxSize:
+            for share in self.extractedShares:
+                shareSig = self.extractedShares[share]
+                while (shareSig.subset(sigg) and shareSig.toString() != sigg.toString()):
+                    sigg = sigg.subtract(shareSig)
+        
         queue = [sigg]
         while(len(queue) > 0):
+
+            if len(queue) > 2* len(self.extractedShares):
+                print("Queue too big, size ", len(queue))
+
             for victim in self.victims:
                 if str(victim) in self.extractedShares:
                     self.extracted[victim] = True
