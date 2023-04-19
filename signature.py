@@ -65,3 +65,6 @@ class Signature:
                 list.append(str(sig))
         res = ''.join(list)
         return res
+    
+def size(sig:Signature)->int :
+    return sig.processesNumber

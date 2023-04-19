@@ -2,10 +2,11 @@ from process import Process
 from byzantine import Byzantine
 from freerider import FreeRider
 import random
+import copy
 
 class Committee:
 
-    def __init__(self, size, m, fr, frmax, k, greedyMode, simType):
+    def __init__(self, size, m, fr, frmax, k, greedyMode, simType, colateral):
         self.m = m
         self.fr = fr
         self.byzantineNumber = (int)(m* size)
@@ -16,6 +17,7 @@ class Committee:
         self.validators = []
         self.greedyMode = greedyMode
         self.simType = simType
+        self.extractedShares = {}
 
         j = 0
         for i in range(self.correctNumber):
@@ -25,15 +27,21 @@ class Committee:
             self.validators.append(FreeRider(j, frmax))
             j+=1
         for i in range(self.byzantineNumber):
-            self.validators.append(Byzantine(j, [0]))
+            self.validators.append(Byzantine(j, [0], colateral))
             j+=1
 
     def allVictimsExtracted(self):
         for v in self.validators:
             if isinstance(v, Byzantine):
-                if v.allVictimsExtracted():
+                if v.allVictimsExtractedwithColateral():
                     return True
         return False
+
+    def printextracted(self):
+        for v in self.validators:
+            if isinstance(v, Byzantine):
+                print("extracted shares: ", v.extractedShares.keys())
+                break
 
     def exchangeShares(self, sender):
         for v in self.validators:
@@ -49,6 +57,12 @@ class Committee:
                 if finalSignature.include(v.id):
                     count += 1
         return count / self.freeRidersNumber
+    
+    def extractIndividuals(self):
+        for v in self.validators:
+            if isinstance(v, Byzantine):
+                x = copy.deepcopy(v.signature)
+                self.extractedShares[x.toString()] = x
 
     def start(self):
         if self.simType == "Byzantine":
@@ -57,6 +71,8 @@ class Committee:
             return self.startFreeriding()
 
     def startByzantine(self):
+        #print("starting byzantine experiment")
+        self.extractIndividuals()
         samples = random.sample(self.validators, 1)
         leader = samples[0]
 
@@ -78,27 +94,38 @@ class Committee:
 
         while(True):
             if self.allVictimsExtracted():
+                #print("victim extracted")
                 return True
             if leader.hasQuorom(self.size):
-                print(len(queue))
+                #print("quorum collected but queue has length: ", len(queue))
                 while len(queue)>0:
                     if self.allVictimsExtracted():
                         return True
                     (receiver , sig) = queue.pop(0)
+                    if isinstance(receiver, Byzantine):
+                        receiver.extractedShares = self.extractedShares
                     receiver.receive(sig)
                     if isinstance(receiver, Byzantine):
-                        self.exchangeShares(receiver)
+                        self.extractedShares = receiver.extractedShares
+                        #self.printextracted()
+                    #    self.exchangeShares(receiver)
+                    
                 return self.allVictimsExtracted()
 
             (receiver , sig) = queue.pop(0)
             #print(sig.signatures)
+            
+            if isinstance(receiver, Byzantine):
+                receiver.extractedShares = self.extractedShares
             receiver.receive(sig)
             if isinstance(receiver, Byzantine):
-                self.exchangeShares(receiver)
+                self.extractedShares = receiver.extractedShares
+                #self.printextracted()
+                #print("leader signatures: ",leader.signature.signatures)
+            #    self.exchangeShares(receiver)
             messages = receiver.send(self.k, self.validators)
             for tuple in messages:
                 queue.append(tuple)
-            #print(leader.signature.signatures)
 
     def startFreeriding(self):
         samples = random.sample(self.validators, 1)

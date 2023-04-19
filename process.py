@@ -9,7 +9,8 @@ class Process:
         self.signature = Signature(id)
 
     def receive(self, sig):
-        self.signature.append(sig)
+        if not sig.subset(self.signature):
+            self.signature.append(sig)
 
     def send(self, k, committee):
         samples = []
@@ -29,6 +30,6 @@ class Process:
 
     def hasQuorom(self, size):
         if self.signature.isQuorom(size):
-            print(self.signature.signatures)
+            #print(self.signature.signatures)
             return True
         return False
